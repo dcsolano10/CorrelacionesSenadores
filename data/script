@@ -1,0 +1,47 @@
+import csv
+import json
+
+nodes = [];
+links = [];
+fechas = {};
+
+with open('porFecha.csv') as csvfile:
+    readCSV = csv.reader(csvfile, delimiter=',')
+    for row in readCSV:
+        if row[2] == "Si":
+            if row[0] not in fechas:
+                fechas[row[0]] = []
+            fechas[row[0]].append(row[1])
+
+for fecha in fechas.iteritems():
+    print "entra"
+    arreglo = fecha[1]
+    for s1 in arreglo:
+        encuentra = False
+        for s2 in arreglo:
+            if s1 != s2:
+                for link in links:
+                    if (link["source"] == s1 and link["target"] == s2) or (link["source"] == s2 and link["target"] == s1):
+                        link["value"] = link["value"] +1;
+                        encuentra = True
+                if encuentra == False:
+                    nuevo = {"source":s1, "target":s2, "value":1}
+                    encuentraS1 = False
+                    encuentraS2 = False
+                    for node in nodes:
+                    	if node["id"] == s1:
+                    		encuentraS1 = True
+                    	if node["id"] == s2:
+                    		encuentraS2 = True
+                    if encuentraS1 == False:
+                        nodes.append({'id':s1, 'group':1})
+                    if encuentraS2 == False:
+                        nodes.append({'id':s2, 'group':1})
+                    links.append(nuevo)
+
+
+
+file = {'nodes':nodes, 'links':links}
+
+with open('data.json', 'w') as outfile:
+    json.dump(file, outfile, sort_keys=True, indent=4, separators=(',', ': '),encoding = "ISO-8859-1")
